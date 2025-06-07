@@ -1,0 +1,11 @@
+server:
+  port: 8080
+  max_file_size: 52428800  # 50MB in bytes
+
+kafka:
+  brokers:
+    - kafka:9092  # Docker service name
+  topic: file-uploads
+  producer:
+    max_retries: 3
+    retry_backoff: 100ms 

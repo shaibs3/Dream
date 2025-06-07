@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -10,6 +9,7 @@ import (
 	"dream/interfaces"
 	"dream/kafkaConsumer"
 	"dream/kafkaProducer"
+	"dream/uploader"
 )
 
 var (
@@ -50,37 +50,7 @@ func initKafkaConsumer() error {
 	return nil
 }
 
-func uploadHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	file, header, err := r.FormFile("file")
-	if err != nil {
-		http.Error(w, "Error retrieving file", http.StatusBadRequest)
-		return
-	}
-	defer file.Close()
-
-	content, err := io.ReadAll(file)
-	if err != nil {
-		http.Error(w, "Error reading file", http.StatusInternalServerError)
-		return
-	}
-
-	err = producer.SendMessage(content)
-	if err != nil {
-		http.Error(w, "Error sending message to Kafka", http.StatusInternalServerError)
-		return
-	}
-
-	fmt.Fprintf(w, "File uploaded successfully: %s", header.Filename)
-}
-
 func main() {
-	http.HandleFunc("/upload", uploadHandler)
-
 	if err := initKafkaProducer(); err != nil {
 		log.Fatalf("Failed to initialize Kafka producer: %v", err)
 	}
@@ -89,6 +59,10 @@ func main() {
 		log.Fatalf("Failed to initialize Kafka consumer: %v", err)
 	}
 	defer consumer.Stop()
+
+	// Create and use the file uploader
+	fileUploader := uploader.NewFileUploader(producer)
+	http.HandleFunc("/upload", fileUploader.HandleUpload)
 
 	log.Println("Server starting on :8080...")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
