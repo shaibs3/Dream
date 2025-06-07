@@ -20,7 +20,7 @@ func initKafkaProducer() (kafkaProducer.IProducer, error) {
 		kafkaBroker = "localhost:9092"
 	}
 
-	producer, err := kafkaProducer.NewKafkaProducer(kafkaBroker, "file-uploads")
+	producer, err := kafkaProducer.NewKafkaProducer(kafkaBroker, "user-processes")
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize Kafka producer: %v", err)
 	}

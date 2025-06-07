@@ -13,7 +13,7 @@ services:
       - KAFKA_BROKER=kafka:9092
       - POSTGRES_HOST=postgres
       - POSTGRES_USER=dreamuser
-      - KAFKA_TOPIC=file-uploads
+      - KAFKA_TOPIC=user-processes
       - POSTGRES_PASSWORD=dreampass
       - POSTGRES_DB=dreamdb
       - POSTGRES_PORT=5432
@@ -83,7 +83,7 @@ services:
     image: confluentinc/cp-kafka:latest
     depends_on:
       - kafka
-    entrypoint: [ "sh", "-c", "sleep 10 && kafka-topics --create --topic file-uploads --bootstrap-server kafka:9092 --partitions 1 --replication-factor 1 --if-not-exists" ]
+    entrypoint: [ "sh", "-c", "sleep 10 && kafka-topics --create --topic user-processes --bootstrap-server kafka:9092 --partitions 1 --replication-factor 1 --if-not-exists" ]
 
 networks:
   app-network:

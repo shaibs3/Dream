@@ -100,7 +100,7 @@ func TestUploadFlow(t *testing.T) {
 	}()
 
 	// Subscribe to the topic
-	partitionConsumer, err := consumer.ConsumePartition("file-uploads", 0, sarama.OffsetOldest)
+	partitionConsumer, err := consumer.ConsumePartition("user-processes", 0, sarama.OffsetOldest)
 	if err != nil {
 		t.Fatalf("Failed to create partition consumer: %v", err)
 	}

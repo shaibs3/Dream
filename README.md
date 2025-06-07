@@ -1,6 +1,28 @@
-# Go Hello World Application
+# Dream Project
 
-A simple HTTP server that responds with "Hello, World!" on the root endpoint.
+Dream is a Go microservice for ingesting, parsing, and storing process data from different operating systems (Linux, Windows, macOS) for research analytics. It supports analytics queries by user, faculty, OS, and time, and is built with Kafka, PostgreSQL, and Docker Compose.
+
+## High level architecture
+
+## Technology Choices
+
+### Why Go?
+Go was chosen for its simplicity, performance, and strong support for concurrency. Its lightweight goroutines make it ideal for building microservices that handle high-throughput data processing efficiently.
+
+### Why Kafka?
+Kafka was selected as the messaging system due to its ability to handle large volumes of data with high reliability and scalability. It provides robust features for distributed systems, making it suitable for real-time data ingestion and processing.
+
+### Why PostgreSQL?
+PostgreSQL was chosen as the database for its advanced features, reliability, and strong support for complex queries. It is well-suited for handling structured data and supports analytics queries efficiently.
+
+### Why Docker Compose Locally?
+Docker Compose was chosen for local development to simplify the setup and management of dependencies like Kafka and PostgreSQL. It allows developers to run the entire stack with minimal configuration.
+
+### Kubernetes in Production
+While Docker Compose is used locally, Kubernetes (K8s) is planned for production deployment to ensure scalability, fault tolerance, and efficient resource management in a distributed environment.
+
+![Image description](img/Arch.png)
+
 
 ## Prerequisites
 
