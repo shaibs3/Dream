@@ -13,22 +13,20 @@ import (
 )
 
 var (
-	producer interfaces.IProducer
 	consumer interfaces.IConsumer
 )
 
-func initKafkaProducer() error {
+func initKafkaProducer() (interfaces.IProducer, error) {
 	kafkaBroker := os.Getenv("KAFKA_BROKER")
 	if kafkaBroker == "" {
 		kafkaBroker = "localhost:9092"
 	}
 
-	var err error
-	producer, err = kafkaProducer.NewKafkaProducer(kafkaBroker, "file-uploads")
+	producer, err := kafkaProducer.NewKafkaProducer(kafkaBroker, "file-uploads")
 	if err != nil {
-		return fmt.Errorf("failed to initialize Kafka producer: %v", err)
+		return nil, fmt.Errorf("failed to initialize Kafka producer: %v", err)
 	}
-	return nil
+	return producer, nil
 }
 
 func initKafkaConsumer() error {
@@ -51,7 +49,8 @@ func initKafkaConsumer() error {
 }
 
 func main() {
-	if err := initKafkaProducer(); err != nil {
+	producer, err := initKafkaProducer()
+	if err != nil {
 		log.Fatalf("Failed to initialize Kafka producer: %v", err)
 	}
 
