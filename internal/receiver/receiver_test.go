@@ -3,7 +3,7 @@ package receiver
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -29,7 +29,7 @@ func (m *mockProducer) SendMessage(message []byte) error {
 func TestFileReceiver_HandleUpload(t *testing.T) {
 	validator := &MessageRequestValidator{}
 	producer := &mockProducer{}
-	receiver := NewFileReceiver(producer, validator)
+	receiver := NewReceiver(producer, validator)
 
 	validReq := types.MessageRequest{
 		MachineID:   "123",
@@ -43,9 +43,9 @@ func TestFileReceiver_HandleUpload(t *testing.T) {
 	body, _ := json.Marshal(validReq)
 	r := httptest.NewRequest(http.MethodPost, "/upload", bytes.NewReader(body))
 	w := httptest.NewRecorder()
-	receiver.HandleUpload(w, r)
+	receiver.HandleReceive(w, r)
 	resp := w.Result()
-	respBody, _ := ioutil.ReadAll(resp.Body)
+	respBody, _ := io.ReadAll(resp.Body)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	assert.Contains(t, string(respBody), "success")
 	assert.NotNil(t, producer.lastMessage)
@@ -56,14 +56,14 @@ func TestFileReceiver_HandleUpload(t *testing.T) {
 	body, _ = json.Marshal(invalidReq)
 	r = httptest.NewRequest(http.MethodPost, "/upload", bytes.NewReader(body))
 	w = httptest.NewRecorder()
-	receiver.HandleUpload(w, r)
+	receiver.HandleReceive(w, r)
 	resp = w.Result()
 	assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
 
 	// Invalid method
 	r = httptest.NewRequest(http.MethodGet, "/upload", nil)
 	w = httptest.NewRecorder()
-	receiver.HandleUpload(w, r)
+	receiver.HandleReceive(w, r)
 	resp = w.Result()
 	assert.Equal(t, http.StatusMethodNotAllowed, resp.StatusCode)
 
@@ -72,7 +72,7 @@ func TestFileReceiver_HandleUpload(t *testing.T) {
 	body, _ = json.Marshal(validReq)
 	r = httptest.NewRequest(http.MethodPost, "/upload", bytes.NewReader(body))
 	w = httptest.NewRecorder()
-	receiver.HandleUpload(w, r)
+	receiver.HandleReceive(w, r)
 	resp = w.Result()
 	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
 }

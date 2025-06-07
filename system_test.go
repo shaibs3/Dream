@@ -20,7 +20,7 @@ import (
 
 func TestSystem(t *testing.T) {
 	if os.Getenv("TEST_DATABASE_URL") == "" {
-		os.Setenv("TEST_DATABASE_URL", "postgres://dreamuser:dreampass@localhost:5432/dreamdb?sslmode=disable")
+		require.NoError(t, os.Setenv("TEST_DATABASE_URL", "postgres://dreamuser:dreampass@localhost:5432/dreamdb?sslmode=disable"))
 	}
 	// Initialize test database
 	db, err := gorm.Open(postgres.Open(os.Getenv("TEST_DATABASE_URL")), &gorm.Config{})
@@ -74,7 +74,9 @@ func TestSystem(t *testing.T) {
 	// Send Linux user data
 	resp, err := http.Post(baseURL+"/upload", "application/json", bytes.NewBuffer(linuxJSON))
 	require.NoError(t, err, "Failed to send Linux user data")
-	defer resp.Body.Close()
+	defer func() {
+		require.NoError(t, resp.Body.Close())
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
@@ -84,7 +86,9 @@ func TestSystem(t *testing.T) {
 	// Send Windows user data
 	resp, err = http.Post(baseURL+"/upload", "application/json", bytes.NewBuffer(windowsJSON))
 	require.NoError(t, err, "Failed to send Windows user data")
-	defer resp.Body.Close()
+	defer func() {
+		require.NoError(t, resp.Body.Close())
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
@@ -128,10 +132,11 @@ func TestSystem(t *testing.T) {
 
 		// Verify specific process details
 		for _, proc := range processes {
-			if proc.Command == "/usr/sbin/sshd" {
+			switch proc.Command {
+			case "/usr/sbin/sshd":
 				assert.Equal(t, "root", proc.User, "Expected user 'root' for sshd, got '%s'", proc.User)
 				assert.Equal(t, 0.5, proc.CPU, "Expected CPU 0.5 for sshd, got %f", proc.CPU)
-			} else if proc.Command == "vim test.txt" {
+			case "vim test.txt":
 				assert.Equal(t, "user", proc.User, "Expected user 'user' for vim, got '%s'", proc.User)
 				assert.Equal(t, 2.0, proc.CPU, "Expected CPU 2.0 for vim, got %f", proc.CPU)
 			}
@@ -146,10 +151,11 @@ func TestSystem(t *testing.T) {
 
 		// Verify specific process details
 		for _, proc := range processes {
-			if proc.ImageName == "chrome.exe" {
+			switch proc.ImageName {
+			case "chrome.exe":
 				assert.Equal(t, "Console", proc.SessionName, "Expected session 'Console' for chrome, got '%s'", proc.SessionName)
 				assert.Equal(t, "50,000 K", proc.MemUsage, "Expected memory '50,000 K' for chrome, got '%s'", proc.MemUsage)
-			} else if proc.ImageName == "notepad.exe" {
+			case "notepad.exe":
 				assert.Equal(t, "Console", proc.SessionName, "Expected session 'Console' for notepad, got '%s'", proc.SessionName)
 				assert.Equal(t, "5,000 K", proc.MemUsage, "Expected memory '5,000 K' for notepad, got '%s'", proc.MemUsage)
 			}

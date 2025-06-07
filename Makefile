@@ -31,7 +31,7 @@ run:
 
 # Test the application
 test:
-	$(GOTEST) -v ./...
+	$(GOTEST) -v $(shell go list ./... | grep -v system_test)
 
 # Run system tests
 test-system:

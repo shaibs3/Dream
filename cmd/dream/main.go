@@ -64,7 +64,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to initialize Kafka consumer: %v", err)
 	}
-	defer consumer.Stop()
+	defer func() {
+		if err := consumer.Stop(); err != nil {
+			log.Printf("Error stopping consumer: %v", err)
+		}
+	}()
 
 	// Initialize Kafka producer
 	producer, err := initKafkaProducer()
