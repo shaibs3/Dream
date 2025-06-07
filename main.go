@@ -7,26 +7,24 @@ import (
 	"net/http"
 	"os"
 
+	"dream/interfaces"
+	"dream/kafkaProducer"
+
 	"github.com/Shopify/sarama"
 )
 
-var producer sarama.SyncProducer
+var producer interfaces.IProducer
 
 func initKafkaProducer() error {
-	config := sarama.NewConfig()
-	config.Producer.Return.Successes = true
-	config.Producer.Return.Errors = true
-	config.Producer.RequiredAcks = sarama.WaitForAll
-	config.Producer.Partitioner = sarama.NewRandomPartitioner
-
 	kafkaBroker := os.Getenv("KAFKA_BROKER")
 	if kafkaBroker == "" {
 		kafkaBroker = "localhost:9092"
 	}
+
 	var err error
-	producer, err = sarama.NewSyncProducer([]string{kafkaBroker}, config)
+	producer, err = kafkaProducer.NewKafkaProducer(kafkaBroker, "file-uploads")
 	if err != nil {
-		return fmt.Errorf("failed to create producer: %v", err)
+		return fmt.Errorf("failed to initialize Kafka producer: %v", err)
 	}
 	return nil
 }
@@ -50,12 +48,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := &sarama.ProducerMessage{
-		Topic: "file-uploads",
-		Value: sarama.StringEncoder(content),
-	}
-
-	_, _, err = producer.SendMessage(msg)
+	err = producer.SendMessage(content)
 	if err != nil {
 		http.Error(w, "Error sending message to Kafka", http.StatusInternalServerError)
 		return
