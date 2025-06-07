@@ -19,7 +19,7 @@ docker-down:
 	docker-compose down
 
 docker-up-build:
-	docker-compose up --build
+	docker-compose up --build -d
 
 # Build the application
 build:
@@ -30,11 +30,12 @@ run:
 	$(GORUN) main.go
 
 # Test the application
+# TODO - run tests without syste_test.go
 test:
-	$(GOTEST) -v $(shell go list ./... | grep -v system_test)
+	$(GOTEST) -v $(shell go list ./... | grep -xv dream | grep -xv dream/test | grep -xv dream/testdata)
 
 # Run system tests
-test-system:
+test-system: docker-up-build
 	$(GOTEST) -v system_test.go
 
 # Clean build files
