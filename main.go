@@ -58,7 +58,11 @@ func main() {
 	if err := initKafkaConsumer(); err != nil {
 		log.Fatalf("Failed to initialize Kafka consumer: %v", err)
 	}
-	defer consumer.Stop()
+	defer func() {
+		if err := consumer.Stop(); err != nil {
+			log.Printf("Error stopping consumer: %v", err)
+		}
+	}()
 
 	// Create and use the file uploader
 	fileUploader := uploader.NewFileUploader(producer)

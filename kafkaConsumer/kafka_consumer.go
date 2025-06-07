@@ -65,10 +65,14 @@ func (kc *KafkaConsumer) Start() error {
 func (kc *KafkaConsumer) Stop() error {
 	close(kc.stopChan)
 	if kc.partitionConsumer != nil {
-		kc.partitionConsumer.Close()
+		if err := kc.partitionConsumer.Close(); err != nil {
+			return fmt.Errorf("error closing partition consumer: %v", err)
+		}
 	}
 	if kc.consumer != nil {
-		kc.consumer.Close()
+		if err := kc.consumer.Close(); err != nil {
+			return fmt.Errorf("error closing consumer: %v", err)
+		}
 	}
 	return nil
 }

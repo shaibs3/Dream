@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"file-upload-service/config"
+	"dream/config"
 
 	"github.com/Shopify/sarama"
 )

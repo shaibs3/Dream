@@ -6,9 +6,10 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"path/filepath"
 	"time"
 
-	"file-upload-service/kafka"
+	"dream/kafka"
 
 	"github.com/gin-gonic/gin"
 )
@@ -34,10 +35,21 @@ func (h *UploadHandler) HandleUpload(c *gin.Context) {
 	// Get the file from the request
 	file, header, err := c.Request.FormFile("file")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "No file provided"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error retrieving file"})
 		return
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Printf("Error closing file: %v", err)
+		}
+	}()
+
+	// Validate file type
+	ext := filepath.Ext(header.Filename)
+	if !isValidFileType(ext) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file type"})
+		return
+	}
 
 	log.Printf("Received file: %s, size: %d bytes", header.Filename, header.Size)
 
@@ -51,7 +63,7 @@ func (h *UploadHandler) HandleUpload(c *gin.Context) {
 	// Read file content
 	content, err := io.ReadAll(file)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read file"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error reading file"})
 		return
 	}
 
@@ -75,9 +87,22 @@ func (h *UploadHandler) HandleUpload(c *gin.Context) {
 
 	// Send to Kafka
 	if err := h.producer.SendMessage(msg); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process file"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error sending message to Kafka"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "File uploaded successfully"})
+	c.JSON(http.StatusOK, gin.H{
+		"message": fmt.Sprintf("File uploaded successfully: %s", header.Filename),
+	})
+}
+
+// isValidFileType checks if the file type is allowed
+func isValidFileType(ext string) bool {
+	allowedTypes := map[string]bool{
+		".txt":  true,
+		".pdf":  true,
+		".doc":  true,
+		".docx": true,
+	}
+	return allowedTypes[ext]
 }

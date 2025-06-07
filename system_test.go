@@ -23,11 +23,13 @@ func TestUploadFlow(t *testing.T) {
 	}
 	defer func() {
 		cmd := exec.Command("docker-compose", "down")
-		cmd.Run()
+		if err := cmd.Run(); err != nil {
+			t.Logf("Error stopping Docker Compose: %v", err)
+		}
 	}()
 
 	// Wait for services to be ready
-	//time.Sleep(10 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	// Create a test file
 	testContent := []byte("test content")
@@ -62,14 +64,20 @@ func TestUploadFlow(t *testing.T) {
 		t.Fatalf("Failed to write metadata field: %v", err)
 	}
 
-	writer.Close()
+	if err := writer.Close(); err != nil {
+		t.Fatalf("Failed to close writer: %v", err)
+	}
 
 	// Send the request
 	resp, err := http.Post("http://localhost:8080/upload", writer.FormDataContentType(), body)
 	if err != nil {
 		t.Fatalf("Failed to send request: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			t.Logf("Error closing response body: %v", err)
+		}
+	}()
 
 	// Check response
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -85,14 +93,22 @@ func TestUploadFlow(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create Kafka consumer: %v", err)
 	}
-	defer consumer.Close()
+	defer func() {
+		if err := consumer.Close(); err != nil {
+			t.Logf("Error closing consumer: %v", err)
+		}
+	}()
 
 	// Subscribe to the topic
 	partitionConsumer, err := consumer.ConsumePartition("file-uploads", 0, sarama.OffsetOldest)
 	if err != nil {
 		t.Fatalf("Failed to create partition consumer: %v", err)
 	}
-	defer partitionConsumer.Close()
+	defer func() {
+		if err := partitionConsumer.Close(); err != nil {
+			t.Logf("Error closing partition consumer: %v", err)
+		}
+	}()
 
 	// Read message with timeout
 	select {

@@ -3,6 +3,7 @@ package uploader
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"path/filepath"
 
@@ -40,7 +41,11 @@ func (fu *FileUploader) HandleUpload(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error retrieving file", http.StatusBadRequest)
 		return
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Printf("Error closing file: %v", err)
+		}
+	}()
 
 	// Validate file type
 	ext := filepath.Ext(header.Filename)
@@ -63,7 +68,9 @@ func (fu *FileUploader) HandleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "File uploaded successfully: %s", header.Filename)
+	if _, err := fmt.Fprintf(w, "File uploaded successfully: %s", header.Filename); err != nil {
+		log.Printf("Error writing response: %v", err)
+	}
 }
 
 // isValidFileType checks if the file extension is allowed
