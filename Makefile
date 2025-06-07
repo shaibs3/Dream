@@ -1,4 +1,4 @@
-.PHONY: build run test clean lint install-tools
+.PHONY: build run test clean lint install-tools docker-up docker-down docker-up-build test-system
 
 # Binary name
 BINARY_NAME=hello-world
@@ -11,6 +11,16 @@ GOTEST=$(GOCMD) test
 GOGET=$(GOCMD) get
 GORUN=$(GOCMD) run
 
+# Docker Compose commands
+docker-up:
+	docker-compose up -d
+
+docker-down:
+	docker-compose down
+
+docker-up-build:
+	docker-compose up --build
+
 # Build the application
 build:
 	$(GOBUILD) -o $(BINARY_NAME) -v
@@ -22,6 +32,10 @@ run:
 # Test the application
 test:
 	$(GOTEST) -v ./...
+
+# Run system tests
+test-system:
+	$(GOTEST) -v system_test.go
 
 # Clean build files
 clean:
@@ -57,4 +71,8 @@ help:
 	@echo "  make clean        - Clean build files"
 	@echo "  make deps         - Install dependencies"
 	@echo "  make install-tools - Install development tools (golangci-lint)"
-	@echo "  make lint         - Run linter" 
+	@echo "  make lint         - Run linter"
+	@echo "  make docker-up    - Start Docker Compose services"
+	@echo "  make docker-down  - Stop Docker Compose services"
+	@echo "  make docker-up-build - Start Docker Compose services with rebuild"
+	@echo "  make test-system  - Run system tests" 
