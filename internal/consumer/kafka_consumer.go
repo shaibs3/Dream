@@ -88,6 +88,7 @@ func (kc *KafkaConsumer) Start() error {
 					OSVersion:   req.OSVersion,
 					UserName:    req.UserName,
 					UserID:      req.UserID,
+					Faculty:     req.Faculty,
 				}
 
 				// Convert entries to model structs
