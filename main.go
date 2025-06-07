@@ -12,10 +12,6 @@ import (
 	"dream/uploader"
 )
 
-var (
-	consumer interfaces.IConsumer
-)
-
 func initKafkaProducer() (interfaces.IProducer, error) {
 	kafkaBroker := os.Getenv("KAFKA_BROKER")
 	if kafkaBroker == "" {
@@ -29,23 +25,22 @@ func initKafkaProducer() (interfaces.IProducer, error) {
 	return producer, nil
 }
 
-func initKafkaConsumer() error {
+func initKafkaConsumer() (interfaces.IConsumer, error) {
 	kafkaBroker := os.Getenv("KAFKA_BROKER")
 	if kafkaBroker == "" {
 		kafkaBroker = "localhost:9092"
 	}
 
-	var err error
-	consumer, err = kafkaConsumer.NewKafkaConsumer(kafkaBroker, "file-uploads")
+	consumer, err := kafkaConsumer.NewKafkaConsumer(kafkaBroker, "file-uploads")
 	if err != nil {
-		return fmt.Errorf("failed to initialize Kafka consumer: %v", err)
+		return nil, fmt.Errorf("failed to initialize Kafka consumer: %v", err)
 	}
 
 	if err := consumer.Start(); err != nil {
-		return fmt.Errorf("failed to start consumer: %v", err)
+		return nil, fmt.Errorf("failed to start consumer: %v", err)
 	}
 
-	return nil
+	return consumer, nil
 }
 
 func main() {
@@ -54,7 +49,8 @@ func main() {
 		log.Fatalf("Failed to initialize Kafka producer: %v", err)
 	}
 
-	if err := initKafkaConsumer(); err != nil {
+	consumer, err := initKafkaConsumer()
+	if err != nil {
 		log.Fatalf("Failed to initialize Kafka consumer: %v", err)
 	}
 	defer func() {
