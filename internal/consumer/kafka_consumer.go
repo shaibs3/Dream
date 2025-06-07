@@ -81,12 +81,10 @@ func (kc *KafkaConsumer) Start() error {
 				log.Printf("Parsed %d process entries", len(entries))
 
 				// Prepare metadata model
-				meta := &models.Metadata{
+				meta := &models.User{
 					MachineID:   req.MachineID,
 					MachineName: req.MachineName,
 					OSVersion:   req.OSVersion,
-					Timestamp:   req.Timestamp,
-					CommandType: req.CommandType,
 					UserName:    req.UserName,
 					UserID:      req.UserID,
 				}
@@ -107,7 +105,7 @@ func (kc *KafkaConsumer) Start() error {
 					}
 				}
 
-				if err := models.StoreMetadataAndProcesses(kc.db, meta, processModels, osType); err != nil {
+				if err := models.StoreUserAndProcesses(kc.db, meta, processModels, osType, req.Timestamp); err != nil {
 					log.Printf("DB store error: %v", err)
 				}
 
