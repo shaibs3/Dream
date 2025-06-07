@@ -1,7 +1,7 @@
 .PHONY: build run test clean lint install-tools docker-up docker-down docker-up-build test-system
 
 # Binary name
-BINARY_NAME=hello-world
+BINARY_NAME=dream
 
 # Go commands
 GOCMD=go
@@ -23,7 +23,7 @@ docker-up-build:
 
 # Build the application
 build:
-	$(GOBUILD) -o $(BINARY_NAME) -v
+	$(GOBUILD) -o $(BINARY_NAME) ./cmd/dream
 
 # Run the application
 run:

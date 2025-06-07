@@ -58,6 +58,18 @@ services:
     volumes:
       - kafka_data:/var/lib/kafka/data
 
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: dreamuser
+      POSTGRES_PASSWORD: dreampass
+      POSTGRES_DB: dreamdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
 networks:
   app-network:
     driver: bridge
@@ -66,4 +78,15 @@ volumes:
   zookeeper_data:
     driver: local
   kafka_data:
-    driver: local 
+    driver: local
+  pgdata:
+    driver: local
+
+# Add PostgreSQL environment variables to the app service for database connectivity
+environment:
+  - KAFKA_BROKER=kafka:9092
+  - POSTGRES_HOST=postgres
+  - POSTGRES_USER=dreamuser
+  - POSTGRES_PASSWORD=dreampass
+  - POSTGRES_DB=dreamdb
+  - POSTGRES_PORT=5432 
