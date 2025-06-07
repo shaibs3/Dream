@@ -1,10 +1,13 @@
 package kafkaConsumer
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 
 	"dream/interfaces"
+	"dream/parser"
+	"dream/types"
 
 	"github.com/Shopify/sarama"
 )
@@ -50,6 +53,30 @@ func (kc *KafkaConsumer) Start() error {
 			select {
 			case msg := <-partitionConsumer.Messages():
 				log.Printf("Received message: %s\n", string(msg.Value))
+
+				// Unmarshal the message
+				var req types.MessageRequest
+				if err := json.Unmarshal(msg.Value, &req); err != nil {
+					log.Printf("Error unmarshaling message: %v", err)
+					continue
+				}
+
+				// Select parser using factory
+				p, err := parser.GetParser(req)
+				if err != nil {
+					log.Printf("Parser error: %v", err)
+					continue
+				}
+
+				// Parse the command output
+				entries, err := p.Parse(req.CommandOutput)
+				if err != nil {
+					log.Printf("Error parsing command output: %v", err)
+					continue
+				}
+
+				log.Printf("Parsed %d process entries", len(entries))
+
 			case err := <-partitionConsumer.Errors():
 				log.Printf("Error consuming message: %v\n", err)
 			case <-kc.stopChan:
