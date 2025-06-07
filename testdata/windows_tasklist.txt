@@ -1,0 +1,4 @@
+Image Name                     PID Session Name        Session#    Mem Usage
+========================= ======== ================ =========== ============
+chrome.exe                    1234 Console                    1     50,000 K
+notepad.exe                   5678 Console                    1      5,000 K 

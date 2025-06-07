@@ -2,6 +2,7 @@ package kafkaProducer
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/Shopify/sarama"
 )
@@ -33,11 +34,15 @@ func NewKafkaProducer(broker string, topic string) (IProducer, error) {
 
 // SendMessage sends a message to the configured topic
 func (kp *KafkaProducer) SendMessage(message []byte) error {
+	log.Printf("KafkaProducer: Sending message to topic %s: %s", kp.topic, string(message))
 	msg := &sarama.ProducerMessage{
 		Topic: kp.topic,
 		Value: sarama.StringEncoder(message),
 	}
 
 	_, _, err := kp.producer.SendMessage(msg)
+	if err != nil {
+		log.Printf("KafkaProducer: Error sending message: %v", err)
+	}
 	return err
 }

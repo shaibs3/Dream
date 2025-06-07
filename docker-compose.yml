@@ -1,17 +1,24 @@
 version: '3.8'
 
 services:
-#  app:
-#    build: .
-#    ports:
-#      - "8080:8080"
-#    depends_on:
-#      kafka:
-#        condition: service_healthy
-#    environment:
-#      - KAFKA_BROKERS=kafka:9092
-#    networks:
-#      - app-network
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgres://dreamuser:dreampass@postgres:5432/dreamdb?sslmode=disable
+      - KAFKA_BROKER=kafka:9092
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USER=dreamuser
+      - KAFKA_TOPIC=file-uploads
+      - POSTGRES_PASSWORD=dreampass
+      - POSTGRES_DB=dreamdb
+      - POSTGRES_PORT=5432
+    networks:
+      - app-network
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -37,7 +44,7 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
@@ -69,6 +76,14 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  topic-init:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - kafka
+    entrypoint: [ "sh", "-c", "sleep 10 && kafka-topics --create --topic file-uploads --bootstrap-server kafka:9092 --partitions 1 --replication-factor 1 --if-not-exists" ]
 
 networks:
   app-network:
@@ -80,13 +95,4 @@ volumes:
   kafka_data:
     driver: local
   pgdata:
-    driver: local
-
-# Add PostgreSQL environment variables to the app service for database connectivity
-environment:
-  - KAFKA_BROKER=kafka:9092
-  - POSTGRES_HOST=postgres
-  - POSTGRES_USER=dreamuser
-  - POSTGRES_PASSWORD=dreampass
-  - POSTGRES_DB=dreamdb
-  - POSTGRES_PORT=5432 
+    driver: local 

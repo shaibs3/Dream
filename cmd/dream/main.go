@@ -12,8 +12,6 @@ import (
 	"dream/internal/receiver"
 
 	"github.com/joho/godotenv"
-
-	"gorm.io/gorm"
 )
 
 func initKafkaProducer() (kafkaProducer.IProducer, error) {
@@ -29,69 +27,67 @@ func initKafkaProducer() (kafkaProducer.IProducer, error) {
 	return producer, nil
 }
 
-func initKafkaConsumer(db *gorm.DB) (kafkaConsumer.IConsumer, error) {
-	kafkaBroker := os.Getenv("KAFKA_BROKER")
-	if kafkaBroker == "" {
-		kafkaBroker = "localhost:9092"
-	}
-
-	consumer, err := kafkaConsumer.NewKafkaConsumer(kafkaBroker, "file-uploads", db)
+func initKafkaConsumer(kafkaBroker string, storage kafkaConsumer.ProcessStorage) (kafkaConsumer.IConsumer, error) {
+	consumer, err := kafkaConsumer.NewKafkaConsumer(
+		kafkaBroker,
+		os.Getenv("KAFKA_TOPIC"),
+		storage,
+	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to initialize Kafka consumer: %v", err)
+		return nil, fmt.Errorf("failed to create Kafka consumer: %v", err)
 	}
 
 	if err := consumer.Start(); err != nil {
-		return nil, fmt.Errorf("failed to start consumer: %v", err)
+		return nil, fmt.Errorf("failed to start Kafka consumer: %v", err)
 	}
 
 	return consumer, nil
 }
 
 func main() {
-	// Load .env file if present
-	_ = godotenv.Load()
-
-	// Initialize PostgreSQL connection
-	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
-		os.Getenv("POSTGRES_HOST"),
-		os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PASSWORD"),
-		os.Getenv("POSTGRES_DB"),
-		os.Getenv("POSTGRES_PORT"),
-	)
-	db, err := models.InitDB(dsn)
-	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+	// Load environment variables
+	if err := godotenv.Load(); err != nil {
+		log.Printf("Warning: .env file not found")
 	}
 
-	// 1. create the Producer
+	// Initialize database
+	db, err := models.InitDB(os.Getenv("DATABASE_URL"))
+	if err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
+
+	// Initialize storage
+	storage := models.NewPostgresStorage(db)
+
+	// Initialize Kafka consumer
+	consumer, err := initKafkaConsumer(os.Getenv("KAFKA_BROKER"), storage)
+	if err != nil {
+		log.Fatalf("Failed to initialize Kafka consumer: %v", err)
+	}
+	defer consumer.Stop()
+
+	// Initialize Kafka producer
 	producer, err := initKafkaProducer()
 	if err != nil {
 		log.Fatalf("Failed to initialize Kafka producer: %v", err)
 	}
 
-	// 2. create the Consumer
-	consumer, err := initKafkaConsumer(db)
-	if err != nil {
-		log.Fatalf("Failed to initialize Kafka consumer: %v", err)
+	// Initialize HTTP server
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
 	}
-	defer func() {
-		if err := consumer.Stop(); err != nil {
-			log.Printf("Error stopping consumer: %v", err)
-		}
-	}()
 
-	// 3. Create the Application Api
+	// Initialize receiverHandler with validator and producer
 	validator := &receiver.MessageRequestValidator{}
-	fileReceiver := receiver.NewFileReceiver(producer, validator)
-	http.HandleFunc("/upload", fileReceiver.HandleUpload)
+	receiverHandler := receiver.NewReceiver(producer, validator)
 
-	log.Println("Server starting on :8080...")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatalf("Server failed to start: %v", err)
+	// Set up routes
+	http.HandleFunc("/upload", receiverHandler.HandleReceive)
+
+	// Start the app server
+	log.Printf("Server starting on port %s", port)
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
+		log.Fatalf("Failed to start server: %v", err)
 	}
 }
-
-//TIP See GoLand help at <a href="https://www.jetbrains.com/help/go/">jetbrains.com/help/go/</a>.
-// Also, you can try interactive lessons for GoLand by selecting 'Help | Learn IDE Features' from the main menu.

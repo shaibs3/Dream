@@ -12,4 +12,5 @@ type MessageRequest struct {
 	UserName      string    `json:"user_name"`
 	UserID        string    `json:"user_id"`
 	CommandOutput string    `json:"command_output"`
+	Faculty       string    `json:"faculty"`
 }

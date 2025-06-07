@@ -1,0 +1,3 @@
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root      1234  0.5  1.2  123456 12345 ?       Ss   10:00   0:01 /usr/sbin/sshd
+user      5678  2.0  0.8   98765  5432 pts/0   S+   10:01   0:02 vim test.txt 

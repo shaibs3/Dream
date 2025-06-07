@@ -1,32 +1,33 @@
 package models
 
-type Process struct {
-	ID         uint `gorm:"primaryKey"`
-	MetadataID uint
-	PID        int
-	OSType     string
-	Linux      *LinuxProcess   `gorm:"foreignKey:ProcessID"`
-	Windows    *WindowsProcess `gorm:"foreignKey:ProcessID"`
-}
+import "time"
 
 type LinuxProcess struct {
-	ProcessID uint `gorm:"primaryKey"`
-	User      string
-	CPU       float64
-	MEM       float64
-	VSZ       int
-	RSS       int
-	TTY       string
-	Stat      string
-	Start     string
-	Time      string
-	Command   string
+	ID                 uint      `gorm:"primaryKey"`
+	UserID             string    // Foreign key to users table
+	Timestamp          time.Time // When the process was seen
+	User               string
+	CPU                float64
+	MEM                float64
+	VSZ                int
+	RSS                int
+	TTY                string
+	Stat               string
+	Start              string
+	Time               string
+	Command            string
+	FileSize           int64
+	IsSystemExecutable bool
 }
 
 type WindowsProcess struct {
-	ProcessID   uint `gorm:"primaryKey"`
-	ImageName   string
-	SessionName string
-	SessionNum  int
-	MemUsage    string
+	ID                 uint      `gorm:"primaryKey"`
+	UserID             string    // Foreign key to users table
+	Timestamp          time.Time // When the process was seen
+	ImageName          string
+	SessionName        string
+	SessionNum         int
+	MemUsage           string
+	FileSize           int64
+	IsSystemExecutable bool
 }
