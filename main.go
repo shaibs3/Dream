@@ -44,11 +44,13 @@ func initKafkaConsumer() (interfaces.IConsumer, error) {
 }
 
 func main() {
+	// 1. create the Producer
 	producer, err := initKafkaProducer()
 	if err != nil {
 		log.Fatalf("Failed to initialize Kafka producer: %v", err)
 	}
 
+	// 2. create the Consumer
 	consumer, err := initKafkaConsumer()
 	if err != nil {
 		log.Fatalf("Failed to initialize Kafka consumer: %v", err)
@@ -59,9 +61,9 @@ func main() {
 		}
 	}()
 
-	// Create and use the file uploader
-	fileUploader := uploader.NewFileUploader(producer)
-	http.HandleFunc("/upload", fileUploader.HandleUpload)
+	// 3. Create the Application Api
+	fileReceiver := uploader.NewFileReceiver(producer)
+	http.HandleFunc("/upload", fileReceiver.HandleUpload)
 
 	log.Println("Server starting on :8080...")
 	if err := http.ListenAndServe(":8080", nil); err != nil {

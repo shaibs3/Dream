@@ -10,20 +10,20 @@ import (
 	"dream/interfaces"
 )
 
-// FileUploader implements the IUploader interface
-type FileUploader struct {
+// FileReceiver implements the IReceiver interface
+type FileReceiver struct {
 	producer interfaces.IProducer
 }
 
-// NewFileUploader creates a new FileUploader
-func NewFileUploader(producer interfaces.IProducer) interfaces.IUploader {
-	return &FileUploader{
+// NewFileReceiver creates a new FileReceiver
+func NewFileReceiver(producer interfaces.IProducer) interfaces.IReceiver {
+	return &FileReceiver{
 		producer: producer,
 	}
 }
 
 // HandleUpload handles the file upload request
-func (fu *FileUploader) HandleUpload(w http.ResponseWriter, r *http.Request) {
+func (fr *FileReceiver) HandleUpload(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -62,7 +62,7 @@ func (fu *FileUploader) HandleUpload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send to Kafka
-	err = fu.producer.SendMessage(content)
+	err = fr.producer.SendMessage(content)
 	if err != nil {
 		http.Error(w, "Error sending message to Kafka", http.StatusInternalServerError)
 		return
@@ -73,7 +73,7 @@ func (fu *FileUploader) HandleUpload(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// isValidFileType checks if the file extension is allowed
+// isValidFileType checks if the file type is allowed
 func isValidFileType(ext string) bool {
 	allowedTypes := map[string]bool{
 		".txt":  true,
