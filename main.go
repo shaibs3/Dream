@@ -8,12 +8,14 @@ import (
 	"os"
 
 	"dream/interfaces"
+	"dream/kafkaConsumer"
 	"dream/kafkaProducer"
-
-	"github.com/Shopify/sarama"
 )
 
-var producer interfaces.IProducer
+var (
+	producer interfaces.IProducer
+	consumer interfaces.IConsumer
+)
 
 func initKafkaProducer() error {
 	kafkaBroker := os.Getenv("KAFKA_BROKER")
@@ -26,6 +28,25 @@ func initKafkaProducer() error {
 	if err != nil {
 		return fmt.Errorf("failed to initialize Kafka producer: %v", err)
 	}
+	return nil
+}
+
+func initKafkaConsumer() error {
+	kafkaBroker := os.Getenv("KAFKA_BROKER")
+	if kafkaBroker == "" {
+		kafkaBroker = "localhost:9092"
+	}
+
+	var err error
+	consumer, err = kafkaConsumer.NewKafkaConsumer(kafkaBroker, "file-uploads")
+	if err != nil {
+		return fmt.Errorf("failed to initialize Kafka consumer: %v", err)
+	}
+
+	if err := consumer.Start(); err != nil {
+		return fmt.Errorf("failed to start consumer: %v", err)
+	}
+
 	return nil
 }
 
@@ -57,57 +78,19 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "File uploaded successfully: %s", header.Filename)
 }
 
-func consumeMessages() error {
-	config := sarama.NewConfig()
-	config.Consumer.Return.Errors = true
-	config.Consumer.Offsets.Initial = sarama.OffsetOldest // Start from the beginning
-
-	kafkaBroker := os.Getenv("KAFKA_BROKER")
-	if kafkaBroker == "" {
-		kafkaBroker = "localhost:9092"
-	}
-
-	consumer, err := sarama.NewConsumer([]string{kafkaBroker}, config)
-	if err != nil {
-		return fmt.Errorf("failed to create consumer: %v", err)
-	}
-	defer consumer.Close()
-
-	partitionConsumer, err := consumer.ConsumePartition("file-uploads", 0, sarama.OffsetOldest)
-	if err != nil {
-		return fmt.Errorf("failed to create partition consumer: %v", err)
-	}
-	defer partitionConsumer.Close()
-
-	for {
-		select {
-		case msg := <-partitionConsumer.Messages():
-			fmt.Printf("Received message: %s\n", string(msg.Value))
-		case err := <-partitionConsumer.Errors():
-			fmt.Printf("Error consuming message: %v\n", err)
-		}
-	}
-}
-
 func main() {
-	// Start consuming messages
-	go func() {
-		if err := consumeMessages(); err != nil {
-			log.Fatalf("Failed to consume messages: %v", err)
-		}
-	}()
-
-	// Your existing HTTP server code
 	http.HandleFunc("/upload", uploadHandler)
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello, World!")
-	})
 
 	if err := initKafkaProducer(); err != nil {
 		log.Fatalf("Failed to initialize Kafka producer: %v", err)
 	}
-	log.Println("Server starting on :8080...")
 
+	if err := initKafkaConsumer(); err != nil {
+		log.Fatalf("Failed to initialize Kafka consumer: %v", err)
+	}
+	defer consumer.Stop()
+
+	log.Println("Server starting on :8080...")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}
