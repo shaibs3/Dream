@@ -2,7 +2,6 @@
 
 Dream is a Go microservice for ingesting, parsing, and storing process data from different operating systems (Linux, Windows, macOS) for research analytics. It supports analytics queries by user, faculty, OS, and time, and is built with Kafka, PostgreSQL, and Docker Compose.
 
-> **Note:** Due to the scope and requirements of this project, cloud storage was not used. Instead, the database schema uses a string field to hold the full command output for each process record. This simplifies local development and testing, but may be revisited for scalability in a production environment.
 
 ## High level architecture
 
@@ -23,13 +22,17 @@ Docker Compose was chosen for local development to simplify the setup and manage
 ### Kubernetes in Production
 While Docker Compose is used locally, Kubernetes (K8s) is planned for production deployment to ensure scalability, fault tolerance, and efficient resource management in a distributed environment.
 
+> **Note:** Due to the scope and requirements of this project, cloud storage was not used. Instead, the database schema uses a string field to hold the full command output for each process record. This simplifies local development and testing, but may be revisited for scalability in a production environment.
+
 ![Image description](img/Arch.png)
 
 
 ## Prerequisites
 
-- Go 1.21 or later
-- Make (for using Makefile commands)
+- [Go 1.21 or later](https://go.dev/doc/install)
+- [Make](./Makefile) (for using Makefile commands)
+- [Docker](https://www.docker.com/get-started) (required for running the app and dependencies locally)
+- [Docker Compose](https://docs.docker.com/compose/) (for orchestrating multi-container setup)
 
 ## Running the Application
 
