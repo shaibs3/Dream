@@ -38,17 +38,20 @@ While Docker Compose is used locally, Kubernetes (K8s) is planned for production
 
 ### Using Make
 
-The project includes a Makefile with common development commands:
+The project includes a [Make](./Makefile) with common development commands:
 
 ```bash
 # Build the application
 make build
 
 # Run the application
-make run
+make docker-up-build
 
 # Run tests
 make test
+
+# Run end to end tests
+make test-system
 
 # Clean build files
 make clean
@@ -63,31 +66,16 @@ make lint
 make help
 ```
 
-### Manual Run
 
-Alternatively, you can run the application directly:
 
-1. Clone this repository
-2. Run the application:
-   ```bash
-   go run main.go
-   ```
-3. Open your browser and visit `http://localhost:8080`
 
-## Features
-
-- Simple HTTP server
-- Root endpoint that returns "Hello, World!"
-- Proper error handling and logging
-- Makefile for common development tasks
 
 ## Running the App with Docker Compose
 
 To build and run the application and all dependencies (Postgres, Kafka, etc.) using Docker Compose:
 
 ```sh
-docker-compose build
-docker-compose up -d
+make docker-up-build
 ```
 
 - The app will be available at http://localhost:8080
@@ -103,26 +91,20 @@ docker-compose up -d
 ## System Tests
 
 System tests are located in `system_test.go` and are designed to verify the end-to-end functionality of the application.
+# Run the application
+make docker-up-build
 
-### How to Add a System Test
-1. Open or create `system_test.go` in the project root.
-2. Write your test using Go's `testing` package and `require`/`assert` from `testify` for assertions.
-3. Use the provided helpers and data in the `testdata/` directory as needed.
+# Run tests
+make test
 
-### How to Run System Tests
+# Run end to end tests
+make test-system
 
-1. Ensure the app and dependencies are running (see above).
-2. In a new terminal, run:
-   ```sh
-   go test -v system_test.go
-   ```
-   or to run all tests:
-   ```sh
-   go test -v ./...
-   ```
+# Clean build files
+make clean
 
-- The test will automatically set up the required environment variables for the test database.
-- Make sure your test database is accessible at `localhost:5432` (or adjust the connection string in the test).
+```
+tabase is accessible at `localhost:5432` (or adjust the connection string in the test).
 
 ---
 
