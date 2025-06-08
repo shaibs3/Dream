@@ -5,7 +5,7 @@ Dream is a Go microservice for ingesting, parsing, and storing process data from
 
 ## High level architecture
 
-![Image description](img/Arch.png)
+![Image description](img/imgArchitecture.png)
 
 ## Technology Choices
 
