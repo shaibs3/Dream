@@ -52,7 +52,7 @@ func TestSystem(t *testing.T) {
 	windowsUser := types.MessageRequest{
 		MachineID:     "win-pc-001",
 		MachineName:   "Windows Workstation",
-		OSVersion:     "Windows 10",
+		OSVersion:     "Windows",
 		Timestamp:     time.Now(),
 		CommandType:   "tasklist",
 		UserName:      "jane.smith",
@@ -120,7 +120,7 @@ func TestSystem(t *testing.T) {
 		assert.NoError(t, err, "Windows user not found")
 		if err == nil {
 			assert.Equal(t, "Medicine", windowsUser.Faculty, "Expected faculty 'Medicine', got '%s'", windowsUser.Faculty)
-			assert.Equal(t, "Windows 10", windowsUser.OSVersion, "Expected OS 'Windows 10', got '%s'", windowsUser.OSVersion)
+			assert.Equal(t, "Windows", windowsUser.OSVersion, "Expected OS 'Windows', got '%s'", windowsUser.OSVersion)
 		}
 	})
 

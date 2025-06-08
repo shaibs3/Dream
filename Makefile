@@ -25,10 +25,6 @@ docker-up-build:
 build:
 	$(GOBUILD) -o $(BINARY_NAME) ./cmd/dream
 
-# Run the application
-run:
-	$(GORUN) main.go
-
 # Test the application
 test:
 	$(GOTEST) -v $(shell go list ./... | grep -xv dream | grep -xv dream/test | grep -xv dream/testdata)
@@ -36,6 +32,7 @@ test:
 # Run system tests
 test-system: docker-up-build
 	$(GOTEST) -v system_test.go
+	$(MAKE) docker-down
 
 # Clean build files
 clean:
@@ -66,7 +63,6 @@ lint:
 help:
 	@echo "Available commands:"
 	@echo "  make build         - Build the application"
-	@echo "  make run          - Run the application"
 	@echo "  make test         - Run tests"
 	@echo "  make clean        - Clean build files"
 	@echo "  make deps         - Install dependencies"

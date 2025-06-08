@@ -95,7 +95,7 @@ func (kc *KafkaConsumer) Start() error {
 				var osType string
 				var processModels []interface{}
 				switch req.OSVersion {
-				case "Windows 10":
+				case "Windows":
 					osType = "windows"
 					for _, e := range entries {
 						processModels = append(processModels, e.(parser.WindowsProcess))

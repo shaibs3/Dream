@@ -9,7 +9,7 @@ import (
 // TODO - This should be implemented using interface
 func GetParser(req types.MessageRequest) (types.Parser, error) {
 	switch req.OSVersion {
-	case "Windows 10":
+	case "Windows":
 		log.Printf("ParserFactory: Selected WindowsParser for OSVersion=%s", req.OSVersion)
 		return &WindowsParser{}, nil
 	case "Ubuntu", "Linux":
