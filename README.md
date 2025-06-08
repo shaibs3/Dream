@@ -26,34 +26,34 @@ While Docker Compose is used locally, Kubernetes (K8s) is planned for production
 
 ![Image description](img/Arch.png)
 ## Additional components that couldnt be put in the task due to time constraints-
-- Metrics support 
+- **Metrics support** 
   - I would use a library such as OpenTelemetry for emitting metrics and collecting data such as:
     - Request latency
     - Error rates
     - Service availability
   - Distributed tracing to trace requests across microservices and identify bottlenecks or issues in the system.
-- Logging 
+- **Logging** 
   - I would use a structured logging library such as logrus or zap to capture detailed logs for debugging and monitoring purposes.
-- Security 
+- **Security** 
   - I would implement security measures such as authentication and authorization to protect sensitive data and ensure that only authorized users can access the system.
   - I would add a scrubber service to remove all PII (Personally Identifiable Information) from the data before it is stored in the database.
   - I would use a managed service such as key vault to store sensitive information such as API keys, database credentials, and other secrets.
   - I would implement rate limiting to prevent abuse of the API and protect against denial-of-service attacks.
   - I would implement a circuit breaker pattern to prevent cascading failures in the system and improve resilience.
-- API Documentation 
+- **API Documentation** 
   - I would use a tool such as Swagger or OpenAPI to generate API documentation for the microservice, making it easier for developers to understand and use the API.
-- CI/CD Pipeline 
+- **CI/CD Pipeline** 
   - I would set up a continuous integration and continuous deployment (CI/CD) pipeline to automate the build, test, and deployment processes, ensuring that changes are deployed quickly and reliably.
-- K8s support 
+- **K8s support** 
   - I would add Kubernetes support to the project to enable deployment and scaling of the microservice in a production environment.
   - This would include creating Kubernetes manifests for deploying the microservice, configuring service discovery, and setting up load balancing.
-- Splitting the project into 2 different microservices
+- **Splitting the project into 2 different microservices**
   - the producer and consumer shouldn't be part of the same monolith, but they should be 2 different microservices that should scale independently
-- Kafka commit offset
-   - Currently there is no offset commit, so once the servivce is restarted, it will reprocess all the messages in the topic. This can be fixed by implementing offset management in the consumer service.
-- Storage support 
+- **Kafka commit offset**
+   - Currently, there is no offset commit, so once the servivce is restarted, it will reprocess all the messages in the topic. This can be fixed by implementing offset management in the consumer service.
+- **Storage support** 
    - The commands output in the final implementation should be uploaded to storage blob (such as aws s3, azure storage, etc.). The api endpoint should download it from there rather than receiving it as a string. 
-- Disaster recovery
+- **Disaster recovery**
    - The service should be deployed to multiple data centers and multiple regions for disaster recovery purposes. This would ensure that the service is highly available and can withstand failures in one or more data centers or regions.
 
 
