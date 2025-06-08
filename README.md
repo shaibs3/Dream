@@ -5,6 +5,8 @@ Dream is a Go microservice for ingesting, parsing, and storing process data from
 
 ## High level architecture
 
+![Image description](img/Arch.png)
+
 ## Technology Choices
 
 ### Why Go?
@@ -26,7 +28,6 @@ While Docker Compose is used locally, Kubernetes (K8s) is planned for production
 
 > **Note:** Due to the scope and requirements of this project, cloud storage was not used. Instead, the database schema uses a string field to hold the full command output for each process record. This simplifies local development and testing, but may be revisited for scalability in a production environment.
 
-![Image description](img/Arch.png)
 ## Additional components that couldnt be put in the task due to time constraints-
 - **Metrics support** 
   - I would use a library such as OpenTelemetry for emitting metrics and collecting data such as:
