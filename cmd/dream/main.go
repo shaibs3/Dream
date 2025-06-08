@@ -45,21 +45,23 @@ func initKafkaConsumer(kafkaBroker string, storage kafkaConsumer.ProcessStorage)
 }
 
 func main() {
-	// Load environment variables
+	// TODO : Add signal handling
+
+	// 1. Load environment variables
 	if err := godotenv.Load(); err != nil {
 		log.Printf("Warning: .env file not found")
 	}
 
-	// Initialize database
+	// 2. Initialize database
 	db, err := models.InitDB(os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
 
-	// Initialize storage (postgress db)
+	// 3. Initialize storage (postgress db)
 	storage := models.NewPostgresStorage(db)
 
-	// Initialize Kafka consumer
+	// 4. Initialize Kafka consumer
 	consumer, err := initKafkaConsumer(os.Getenv("KAFKA_BROKER"), storage)
 	if err != nil {
 		log.Fatalf("Failed to initialize Kafka consumer: %v", err)
@@ -70,26 +72,23 @@ func main() {
 		}
 	}()
 
-	// Initialize Kafka producer
+	// 5. Initialize Kafka producer
 	producer, err := initKafkaProducer()
 	if err != nil {
 		log.Fatalf("Failed to initialize Kafka producer: %v", err)
 	}
 
-	// Initialize HTTP server
+	// 6. Initialize HTTP server
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
-	// Initialize receiverHandler with validator and producer
 	validator := &receiver.MessageRequestValidator{}
 	receiverHandler := receiver.NewReceiver(producer, validator)
 
-	// Set up routes
 	http.HandleFunc("/upload", receiverHandler.HandleReceive)
 
-	// Start the app server
 	log.Printf("Server starting on port %s", port)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatalf("Failed to start server: %v", err)

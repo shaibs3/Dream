@@ -20,6 +20,8 @@ Kafka was selected as the messaging system due to its ability to handle large vo
 ### Why PostgreSQL?
 PostgreSQL was chosen as the database for its advanced features, reliability, and strong support for complex queries. It is well-suited for handling structured data and supports analytics queries efficiently.
 
+In this project, a relational (SQL) database was preferred over NoSQL alternatives because the data model is highly structured and benefits from strong schema enforcement, relationships, and transactional guarantees. SQL databases like PostgreSQL provide powerful querying capabilities (e.g., joins, aggregations, filtering) that are essential for analytics use cases, such as querying by user, faculty, OS, and time. This flexibility and robustness make SQL a better fit for research analytics and reporting compared to most NoSQL solutions.
+
 ### Why Docker Compose Locally?
 Docker Compose was chosen for local development to simplify the setup and management of dependencies like Kafka and PostgreSQL. It allows developers to run the entire stack with minimal configuration.
 
