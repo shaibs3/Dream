@@ -40,35 +40,6 @@ While Docker Compose is used locally, Kubernetes (K8s) is planned for production
 
 The project includes a [Make](./Makefile) with common development commands:
 
-```bash
-# Build the application
-make build
-
-# Run the application
-make docker-up-build
-
-# Run tests
-make test
-
-# Run end to end tests
-make test-system
-
-# Clean build files
-make clean
-
-# Install dependencies
-make deps
-
-# Run linter
-make lint
-
-# Show all available commands
-make help
-```
-
-
-
-
 
 ## Running the App with Docker Compose
 
@@ -88,24 +59,17 @@ make docker-up-build
   docker-compose down
   ```
 
+## Unit Tests
+  ```sh
+  make test
+  ```
 ## System Tests
 
-System tests are located in `system_test.go` and are designed to verify the end-to-end functionality of the application.
-# Run the application
-make docker-up-build
-
-# Run tests
-make test
-
-# Run end to end tests
-make test-system
-
-# Clean build files
-make clean
-
-```
-tabase is accessible at `localhost:5432` (or adjust the connection string in the test).
+System tests are located in `system_test.go` and are designed to verify the end-to-end functionality of the application
+  ```sh
+  make test-system
+  ```
 
 ---
 
-For more details on scripts and utilities, see the `scripts/README.md` file. 
+For more details on scripts and utilities, see the [scripts/README.md](scripts/README.md) file. 
