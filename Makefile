@@ -30,7 +30,6 @@ run:
 	$(GORUN) main.go
 
 # Test the application
-# TODO - run tests without syste_test.go
 test:
 	$(GOTEST) -v $(shell go list ./... | grep -xv dream | grep -xv dream/test | grep -xv dream/testdata)
 
