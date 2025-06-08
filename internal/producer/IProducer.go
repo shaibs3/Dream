@@ -1,4 +1,4 @@
-package kafkaProducer
+package producer
 
 // IProducer defines the interface for a message producer
 type IProducer interface {

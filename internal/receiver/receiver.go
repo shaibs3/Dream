@@ -1,24 +1,24 @@
 package receiver
 
 import (
+	"dream/internal/producer"
+	"dream/internal/types"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
-
-	"dream/internal/types"
 )
 
 // FileReceiver implements the IReceiver interface
 // Now depends on a Validator
 
 type Receiver struct {
-	producer  types.IProducer
+	producer  producer.IProducer
 	validator Validator
 }
 
-func NewReceiver(producer types.IProducer, validator Validator) *Receiver {
+func NewReceiver(producer producer.IProducer, validator Validator) *Receiver {
 	return &Receiver{
 		producer:  producer,
 		validator: validator,

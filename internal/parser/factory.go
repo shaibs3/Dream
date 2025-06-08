@@ -6,6 +6,7 @@ import (
 	"log"
 )
 
+// TODO - This should be implemented using interface
 func GetParser(req types.MessageRequest) (types.Parser, error) {
 	switch req.OSVersion {
 	case "Windows 10":

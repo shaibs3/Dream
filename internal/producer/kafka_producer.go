@@ -1,4 +1,4 @@
-package kafkaProducer
+package producer
 
 import (
 	"fmt"

@@ -56,7 +56,7 @@ func main() {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
 
-	// Initialize storage
+	// Initialize storage (postgress db)
 	storage := models.NewPostgresStorage(db)
 
 	// Initialize Kafka consumer
