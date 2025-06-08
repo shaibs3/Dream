@@ -10,6 +10,8 @@ Dream is a Go microservice for ingesting, parsing, and storing process data from
 ### Why Go?
 Go was chosen for its simplicity, performance, and strong support for concurrency. Its lightweight goroutines make it ideal for building microservices that handle high-throughput data processing efficiently.
 
+### Why message broker?
+To support a scalable and maintainable architecture, I chose to introduce a message broker (Kafka) between the ingestion and processing layers. This decouples the data producers (which submit raw process data) from the consumers (which parse, enrich, and store it), allowing each to scale independently. This design aligns with the CQRS (Command Query Responsibility Segregation) pattern: the ingestion flow focuses on the "command" side—receiving and transforming data—while the query interface focuses on serving read-optimized views. By separating write and read responsibilities, we gain flexibility to evolve each side independently, improve performance through specialized optimizations, and increase system resilience by introducing buffering, retries, and backpressure handling via the message broker.
 ### Why Kafka?
 Kafka was selected as the messaging system due to its ability to handle large volumes of data with high reliability and scalability. It provides robust features for distributed systems, making it suitable for real-time data ingestion and processing.
 
