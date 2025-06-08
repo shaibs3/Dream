@@ -86,7 +86,7 @@ make docker-up-build
   ```
 - To stop all services:
   ```sh
-  docker-compose down
+  make docker-down
   ```
 
 ## Unit Tests
