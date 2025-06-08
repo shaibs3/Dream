@@ -49,8 +49,9 @@ While Docker Compose is used locally, Kubernetes (K8s) is planned for production
   - This would include creating Kubernetes manifests for deploying the microservice, configuring service discovery, and setting up load balancing.
 - **Splitting the project into 2 different microservices**
   - the producer and consumer shouldn't be part of the same monolith, but they should be 2 different microservices that should scale independently
-- **Kafka commit offset**
-   - Currently, there is no offset commit, so once the servivce is restarted, it will reprocess all the messages in the topic. This can be fixed by implementing offset management in the consumer service.
+- **Kafka**
+   - Commit offset - Currently, there is no offset commit, so once the servivce is restarted, it will reprocess all the messages in the topic. This can be fixed by implementing offset management in the consumer service.
+   - Adding retry mechanism
 - **Storage support** 
    - The commands output in the final implementation should be uploaded to storage blob (such as aws s3, azure storage, etc.). The api endpoint should download it from there rather than receiving it as a string. 
 - **Disaster recovery**
