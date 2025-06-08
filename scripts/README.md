@@ -40,9 +40,6 @@ Cleans all tables in the PostgreSQL database.
 ## check_db.sh
 Shows the current state of the database tables.
 
+## Note
+May need to eun dos2unix for the scripts to run them
 ---
-
-### Making scripts executable
-```sh
-chmod +x *.sh
-``` 
